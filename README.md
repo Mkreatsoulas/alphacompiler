@@ -42,4 +42,4 @@ make
 
 ## Notes
 
-Built incrementally across the course phases — scanning and parsing, then intermediate code, target code, and finally the VM. Some assistance was used for debugging and code review along the way.
+Built incrementally across the course phases scanning and parsing, then intermediate code, target code, and finally the VM. Some assistance was used for debugging and code review along the way.
