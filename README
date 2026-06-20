@@ -1,44 +1,51 @@
-# Alpha Compiler & VM — HY-340
+Alpha Compiler & VM
 
-This is my compiler for Alpha, the language from the HY-340 course at UoC. It goes all the way from source code to a
-running program: lexer, parser, intermediate code, bytecode, and a VM that executes it.
+Overview
 
-## How it works
+This project implements a compiler and virtual machine for Alpha, developed as part of the HY-340 (Compiler Construction) course at the University of Crete. The system takes Alpha source code and compiles it down to bytecode, then runs that bytecode on a custom-built virtual machine.
 
-`.asc` source → Flex scanner → Bison parser → quads → bytecode (`.abc`) → VM
+The main goal was to build a working compiler pipeline from scratch, generating intermediate code directly during parsing instead of building a separate AST pass.
 
-I generate quads directly while parsing instead of building an AST first —
-so by the time the parser reduces `expr PLUS expr`, it's already emitted an
-`add` quad. Same for control flow: ifs/whiles/fors use marker rules (`M`,
-`N`) and backpatch lists to fix up jump targets once the target label is
-known, since you don't know where a jump goes until you've parsed past it.
+Key Features
 
-## What's implemented
+Lexical & Syntax Analysis A hand-written Flex scanner paired with a Bison grammar covering the full Alpha language. Intermediate Code Generation Quads are emitted directly during parsing, with backpatching used to resolve jump targets for control flow and short-circuit booleans. Symbol Table Custom hash table with scope-chained entries, supporting proper shadowing through scope hiding. Target Code Generation Quads are translated into custom bytecode, written out as both a binary file and a readable text dump. Virtual Machine A stack-based interpreter that executes the compiled bytecode directly, including function calls, table operations, and control flow.
 
-- **Scanner/parser**: full Alpha grammar — functions (named, anonymous,
-  closures), tables with both array-style and key:value initializers,
-  if/else, while, for, break/continue, short-circuit `&&`/`||`
-- **Symbol table**: hash table with scope-chained entries, handles
-  shadowing by hiding (not deleting) symbols when a scope closes
-- **Quads**: backpatching for jumps, temp variable management that resets
-  per function, scope/offset tracking for globals vs locals vs args, basic
-  constant folding on literal arithmetic
-- **Bytecode + VM**: quads get translated into actual instructions, written
-  out as a binary `.abc` (plus a readable `.txt` dump), and the VM runs them
-  on a stack-based machine — arithmetic, jumps/comparisons, function calls
-  with arg passing and return values, table ops
+Pipeline
 
-## Build & run
 
-```bash
-make
-./compiler program.asc          # -> program.abc + program.abc.txt
+Scanning & Parsing
+
+
+Tokenizes and parses Alpha source, emitting quads on the fly as the grammar reduces.
+
+
+Intermediate Code
+
+
+Quads are generated with backpatch lists for jumps, scope-aware temp variables, and constant folding on literal arithmetic.
+
+
+Target Code
+
+
+Quads are translated into bytecode instructions and written to a .abc file.
+
+
+Execution
+
+
+The VM loads the .abc file and runs it on a stack-based machine.
+
+Language Support
+
+Variables, arithmetic, relational and logical operators with short-circuit evaluation. Functions, including named, anonymous, and library functions. Tables with both array-style and key-value initialization. Control flow: if/else, while, for, break, continue. Proper lexical scoping with shadowing.
+
+Build & Run
+
+bashmake
+./compiler program.asc
 ./avm program.abc
-```
 
-## Notes
+Notes
 
-Built incrementally over the course phases (parsing → IC → target code →
-VM), with some help for debugging and code review along the way —
-noted here for transparency. There are definitely rough edges (it's a course
-project, not a production compiler), but the full pipeline works end to end.
+Built incrementally across the course phases — scanning and parsing, then intermediate code, target code, and finally the VM. Some AI assistance was used for debugging and code review along the way.
